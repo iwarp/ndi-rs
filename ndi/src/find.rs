@@ -123,19 +123,23 @@ impl Find {
         let mut no_sources = 0;
         let start = Instant::now();
         let p_sources = loop {
-            // timeout if it takes an unreasonable amount of time
-            if start.elapsed().as_millis() > timeout_ms {
-                return Err(FindSourcesTimeout);
-            }
-
             let p_sources =
                 unsafe { NDIlib_find_get_current_sources(**self.p_instance, &mut no_sources) };
 
-            if no_sources != 0 {
-                break p_sources;
-            } else {
-                yield_now();
+            // timeout if it takes an unreasonable amount of time
+            if start.elapsed().as_millis() > timeout_ms {
+                if no_sources == 0 {
+                    return Err(FindSourcesTimeout);
+                }
+                else {
+                    break p_sources;
+                }            
             }
+            // if no_sources != 0 {
+            //     break p_sources;
+            // } else {
+                yield_now();
+            // }
         };
 
         let mut sources: Vec<Source> = vec![];

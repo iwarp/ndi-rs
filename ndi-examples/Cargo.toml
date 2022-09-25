@@ -22,6 +22,10 @@ path = "src/save_recv.rs"
 name = "send"
 path = "src/send.rs"
 
+[[bin]]
+name = "find"
+path = "src/find.rs"
+
 [dependencies]
 ndi = { path = "../ndi" }
 image = "0.23"

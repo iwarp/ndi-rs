@@ -1,7 +1,7 @@
 use crate::internal::OnDrop;
 
 use super::*;
-use std::{ffi::CString, thread::yield_now, time::Instant};
+use std::{ffi::CString, thread::{self}, time::{Instant, Duration}};
 
 /// Builder for [`Find`] struct
 #[derive(Debug, Clone)]
@@ -135,11 +135,8 @@ impl Find {
                     break p_sources;
                 }            
             }
-            // if no_sources != 0 {
-            //     break p_sources;
-            // } else {
-                yield_now();
-            // }
+
+            thread::sleep(Duration::from_millis(10));
         };
 
         let mut sources: Vec<Source> = vec![];

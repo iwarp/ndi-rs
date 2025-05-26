@@ -1,9 +1,6 @@
 name: Bindgen
 on:
   push:
-    branches:
-      - main
-  pull_request:
 jobs:
   bindgen:
     name: Bindgen on ${{ matrix.os }}

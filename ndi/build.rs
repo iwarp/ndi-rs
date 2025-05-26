@@ -50,8 +50,8 @@ fn linux_link_and_load() {
     // copy dll to OUT_DIR
     let out_path = get_output_path();
     let src = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
-        .join("thirdparty/Linux/Lib/libndi.so.4");
-    let dst = Path::join(&out_path, "libndi.so.4");
+        .join("thirdparty/Linux/Lib/libndi.so.6");
+    let dst = Path::join(&out_path, "libndi.so.6");
     std::fs::copy(src, dst).unwrap();
 }
 

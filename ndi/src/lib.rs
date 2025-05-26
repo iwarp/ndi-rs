@@ -709,7 +709,7 @@ impl AudioData {
                 no_channels: no_channels,
                 no_samples: no_samples,
                 timecode: timecode,
-                FourCC: FourCCAudioType::FLTP as i32,
+                FourCC: FourCCAudioType::FLTP as u32,
                 p_data: buffer,
                 __bindgen_anon_1: NDIlib_audio_frame_v3_t__bindgen_ty_1 {
                     channel_stride_in_bytes: stride,

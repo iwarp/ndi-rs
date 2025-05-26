@@ -38,8 +38,6 @@ impl Display for RecvPerformance {
 /// exists when the source has an alpha channel, and another when it does not.
 /// See [`FourCCVideoType`] for details on individual FourCC types.
 ///
-
-///
 #[derive(Debug, Clone, Copy)]
 #[allow(non_camel_case_types)]
 pub enum RecvColorFormat {
@@ -94,6 +92,12 @@ pub struct RecvBuilder {
     bandwidth: Option<RecvBandwidth>,
     allow_video_fields: Option<bool>,
     ndi_recv_name: Option<String>,
+}
+
+impl Default for RecvBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl RecvBuilder {
@@ -188,6 +192,12 @@ pub struct RecvQueueSize {
     pub audio_frames: u32,
     /// Number of metadata frames in queue
     pub metadata_frames: u32,
+}
+
+impl Default for RecvQueueSize {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl RecvQueueSize {
@@ -444,9 +454,7 @@ impl Recv {
         let mut p_total: mem::MaybeUninit<NDIlib_recv_queue_t> = mem::MaybeUninit::uninit();
         unsafe {
             NDIlib_recv_get_queue(**self.p_instance, p_total.as_mut_ptr());
-            let queue = RecvQueueSize::from_binding(p_total.assume_init());
-
-            queue
+            RecvQueueSize::from_binding(p_total.assume_init())
         }
     }
 

@@ -10,6 +10,12 @@ pub struct SendBuilder {
     clock_audio: Option<bool>,
 }
 
+impl Default for SendBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SendBuilder {
     /// Create new builder instance
     pub fn new() -> Self {
@@ -149,9 +155,7 @@ impl Send {
     pub fn get_tally(&self, tally: &mut Tally, timeout_ms: u32) -> bool {
         unsafe {
             let p_tally = *tally;
-            let is_updated =
-                NDIlib_send_get_tally(**self.p_instance, &mut p_tally.into(), timeout_ms);
-            is_updated
+            NDIlib_send_get_tally(**self.p_instance, &mut p_tally.into(), timeout_ms)
         }
     }
 

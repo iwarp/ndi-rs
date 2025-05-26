@@ -341,13 +341,12 @@ impl Source {
         if name_char_ptr.is_null() {
             return String::new();
         }
-        let name = unsafe {
+        unsafe {
             CStr::from_ptr(name_char_ptr)
                 .to_owned()
                 .to_string_lossy()
                 .to_string()
-        };
-        name
+        }
     }
 }
 
@@ -389,11 +388,20 @@ impl From<NDIlib_tally_t> for Tally {
     }
 }
 
-impl Into<NDIlib_tally_t> for Tally {
-    fn into(self) -> NDIlib_tally_t {
+// impl Into<NDIlib_tally_t> for Tally {
+//     fn into(self) -> NDIlib_tally_t {
+//         NDIlib_tally_t {
+//             on_preview: self.on_preview,
+//             on_program: self.on_program,
+//         }
+//     }
+// }
+
+impl From<Tally> for NDIlib_tally_t {
+    fn from(val: Tally) -> Self {
         NDIlib_tally_t {
-            on_preview: self.on_preview,
-            on_program: self.on_program,
+            on_preview: val.on_preview,
+            on_program: val.on_program,
         }
     }
 }
@@ -434,6 +442,12 @@ impl Debug for VideoData {
             .field("timecode", &self.timecode())
             .field("metadata", &self.metadata())
             .finish()
+    }
+}
+
+impl Default for VideoData {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -541,7 +555,6 @@ impl VideoData {
     /// # let frame_rate_D = 1 as u32;
     /// let frame_rate = (frame_rate_N as f32) / (frame_rate_D as f32);
     /// ```
-
     pub fn frame_rate_n(&self) -> u32 {
         self.p_instance.frame_rate_N as _
     }
@@ -619,11 +632,10 @@ impl VideoData {
         if metadata_char_ptr.is_null() {
             return String::new();
         }
-        let metadata = unsafe { CStr::from_ptr(metadata_char_ptr) }
+        unsafe { CStr::from_ptr(metadata_char_ptr) }
             .to_owned()
             .to_string_lossy()
-            .to_string();
-        metadata
+            .to_string()
     }
 
     /// A per-frame timestamp filled in by the NDI SDK using a high precision clock.
@@ -647,7 +659,7 @@ impl Drop for VideoData {
     fn drop(&mut self) {
         match &self.parent {
             VideoParent::Recv(recv) => unsafe {
-                NDIlib_recv_free_video_v2(***recv, &mut self.p_instance);
+                NDIlib_recv_free_video_v2(***recv, &self.p_instance);
             },
             VideoParent::Owned => {}
         }
@@ -682,6 +694,12 @@ impl Debug for AudioData {
     }
 }
 
+impl Default for AudioData {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AudioData {
     fn from_binding_recv(
         recv: Arc<OnDrop<NDIlib_recv_instance_t>>,
@@ -705,10 +723,10 @@ impl AudioData {
     ) -> Self {
         Self {
             p_instance: NDIlib_audio_frame_v3_t {
-                sample_rate: sample_rate,
-                no_channels: no_channels,
-                no_samples: no_samples,
-                timecode: timecode,
+                sample_rate,
+                no_channels,
+                no_samples,
+                timecode,
                 // casting to as _ makes it work for both windows and linux.
                 FourCC: FourCCAudioType::FLTP as _,
                 p_data: buffer,
@@ -716,7 +734,7 @@ impl AudioData {
                     channel_stride_in_bytes: stride,
                 },
                 p_metadata: "".as_ptr() as _,
-                timestamp: timestamp,
+                timestamp,
             },
             parent: AudioParent::Owned,
         }
@@ -820,11 +838,10 @@ impl AudioData {
         if metadata_char_ptr.is_null() {
             return String::new();
         }
-        let metadata = unsafe { CStr::from_ptr(metadata_char_ptr) }
+        unsafe { CStr::from_ptr(metadata_char_ptr) }
             .to_owned()
             .to_string_lossy()
-            .to_string();
-        metadata
+            .to_string()
     }
 }
 
@@ -915,8 +932,7 @@ impl MetaData {
         //! according to the docs, metadata should be valid UTF-8 XML
         //! not sure how much it's actually followed in practice
         let char_ptr = self.p_instance.p_data;
-        let data = unsafe { CStr::from_ptr(char_ptr).to_string_lossy().to_string() };
-        data
+        unsafe { CStr::from_ptr(char_ptr).to_string_lossy().to_string() }
     }
 }
 
@@ -924,10 +940,10 @@ impl Drop for MetaData {
     fn drop(&mut self) {
         match &self.parent {
             MetaDataParent::Recv(recv) => unsafe {
-                NDIlib_recv_free_metadata(***recv, &mut self.p_instance);
+                NDIlib_recv_free_metadata(***recv, &self.p_instance);
             },
             MetaDataParent::Send(send) => unsafe {
-                NDIlib_send_free_metadata(***send, &mut self.p_instance);
+                NDIlib_send_free_metadata(***send, &self.p_instance);
             },
             MetaDataParent::Owned => {}
         }

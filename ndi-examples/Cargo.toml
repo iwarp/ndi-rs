@@ -1,6 +1,7 @@
 [package]
 name = "ndi-examples"
 version = "0.0.0"
+edition = "2024"
 
 [[bin]]
 name = "recv"
@@ -28,4 +29,4 @@ path = "src/find.rs"
 
 [dependencies]
 ndi = { path = "../ndi" }
-image = "0.23"
+image = "0.25.6"

@@ -709,7 +709,8 @@ impl AudioData {
                 no_channels: no_channels,
                 no_samples: no_samples,
                 timecode: timecode,
-                FourCC: FourCCAudioType::FLTP as u32,
+                // casting to as _ makes it work for both windows and linux.
+                FourCC: FourCCAudioType::FLTP as _,
                 p_data: buffer,
                 __bindgen_anon_1: NDIlib_audio_frame_v3_t__bindgen_ty_1 {
                     channel_stride_in_bytes: stride,

@@ -52,6 +52,6 @@ fn main() {
             }
             flags::XtaskCmd::Bindgen(_) => run_bindgen(),
         },
-        Err(e) => println!("Error: {}", e.to_string()),
+        Err(e) => println!("Error: {e}"),
     }
 }

@@ -10,6 +10,8 @@ very WIP (as of 7/7/2021) and I have no idea what I'm doing.
 
 Currently supports Windows x64 and Linux x64, but it should be possible to support other platforms eventually by linking to the respective platform SDK.
 
+Updated to NDIv6 and Added Macos Bindings
+
 ## Requirements
 This crate uses [`bindgen`](https://docs.rs/bindgen/0.58.1/bindgen/) and so requires the dependencies that it has which are described [here](https://rust-lang.github.io/rust-bindgen/requirements.html)
 

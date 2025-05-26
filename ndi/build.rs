@@ -17,10 +17,7 @@ fn win_link_and_load() {
 
     let mut lib_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     lib_path.push("thirdparty\\Windows\\Lib");
-    println!(
-        "cargo:rustc-link-search={}",
-        lib_path.to_str().unwrap().to_string()
-    );
+    println!("cargo:rustc-link-search={}", lib_path.to_str().unwrap());
 
     // copy dll to OUT_DIR
     let out_path = get_output_path();
@@ -42,10 +39,7 @@ fn linux_link_and_load() {
     println!("cargo:rustc-link-lib=ndi",);
     let mut lib_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     lib_path.push("thirdparty/Linux/Lib");
-    println!(
-        "cargo:rustc-link-search={}",
-        lib_path.to_str().unwrap().to_string()
-    );
+    println!("cargo:rustc-link-search={}", lib_path.to_str().unwrap());
 
     // copy dll to OUT_DIR
     let out_path = get_output_path();
@@ -64,8 +58,8 @@ fn macos_link_and_load() {
     // copy dll to OUT_DIR
     let out_path = get_output_path();
     let src = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
-        .join("thirdparty/Macos/Lib/libndi.4.dylib");
-    let dst = Path::join(&out_path, "libndi.4.dylib");
+        .join("thirdparty/Macos/Lib/libndi.dylib");
+    let dst = Path::join(&out_path, "libndi.dylib");
     std::fs::copy(src, dst).unwrap();
 }
 

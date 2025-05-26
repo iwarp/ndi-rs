@@ -1,7 +1,11 @@
 use crate::internal::OnDrop;
 
 use super::*;
-use std::{ffi::CString, thread::{self}, time::{Instant, Duration}};
+use std::{
+    ffi::CString,
+    thread::{self},
+    time::{Duration, Instant},
+};
 
 /// Builder for [`Find`] struct
 #[derive(Debug, Clone)]
@@ -130,10 +134,9 @@ impl Find {
             if start.elapsed().as_millis() > timeout_ms {
                 if no_sources == 0 {
                     return Err(FindSourcesTimeout);
-                }
-                else {
+                } else {
                     break p_sources;
-                }            
+                }
             }
 
             thread::sleep(Duration::from_millis(10));

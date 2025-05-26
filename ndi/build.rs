@@ -64,8 +64,8 @@ fn macos_link_and_load() {
     // copy dll to OUT_DIR
     let out_path = get_output_path();
     let src = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
-        .join("thirdparty/Macos/Lib/libndi.4.dylib");
-    let dst = Path::join(&out_path, "libndi.4.dylib");
+        .join("thirdparty/Macos/Lib/libndi.dylib");
+    let dst = Path::join(&out_path, "libndi.dylib");
     std::fs::copy(src, dst).unwrap();
 }
 

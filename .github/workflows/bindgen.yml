@@ -27,5 +27,5 @@ jobs:
       - name: Upload generated bindings
         uses: actions/upload-artifact@v4
         with:
-          name: internal-rs-files
+          name: internal-rs-files-${{ matrix.os }}
           path: ndi/src/internal/*.rs

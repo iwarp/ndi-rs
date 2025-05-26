@@ -77,7 +77,7 @@ impl SendBuilder {
             clock_video: true,
             clock_audio: true,
         };
-        
+
         let cstr_ndi_name: CString;
         let cstr_ndi_group: CString;
 

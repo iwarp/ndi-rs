@@ -6,7 +6,7 @@
 //! http://ndi.tv/
 //!
 
-use internal::{bindings::*, OnDrop};
+use internal::{OnDrop, bindings::*};
 use std::{
     convert::TryFrom,
     ffi::{CStr, CString},

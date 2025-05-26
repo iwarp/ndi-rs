@@ -1,5 +1,5 @@
 use std::{
-    sync::{mpsc::channel, Arc},
+    sync::{Arc, mpsc::channel},
     thread,
     time::Instant,
 };

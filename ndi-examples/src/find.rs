@@ -5,7 +5,7 @@ fn main() {
     println!("Looking for sources");
     let sources = find.current_sources(5000).unwrap();
 
-    if sources.len() == 0 {
+    if sources.is_empty() {
         panic!("No sources found");
     }
 

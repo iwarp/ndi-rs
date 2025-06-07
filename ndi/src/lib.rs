@@ -303,6 +303,7 @@ impl Debug for Source {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("ndi::Source")
             .field("name", &self.get_name())
+            .field("ip", &self.get_ip_address())
             .finish()
     }
 }

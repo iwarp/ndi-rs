@@ -348,6 +348,33 @@ impl Source {
                 .to_string()
         }
     }
+
+    /// Returns the network URL for this source if available.
+    ///
+    /// This URL is provided by the NDI library and may be used to connect
+    /// directly to the source. The value can be `None` if the underlying
+    /// SDK did not supply one.
+    pub fn get_url_address(&self) -> Option<String> {
+        let ptr = unsafe { self.p_instance.__bindgen_anon_1.p_url_address };
+        if ptr.is_null() {
+            None
+        } else {
+            Some(unsafe { CStr::from_ptr(ptr).to_string_lossy().into_owned() })
+        }
+    }
+
+    /// Returns the IP address for this source if provided by the SDK.
+    ///
+    /// The NDI SDK marks this field as deprecated in favour of the URL
+    /// address, so this may return `None` on newer versions.
+    pub fn get_ip_address(&self) -> Option<String> {
+        let ptr = unsafe { self.p_instance.__bindgen_anon_1.p_ip_address };
+        if ptr.is_null() {
+            None
+        } else {
+            Some(unsafe { CStr::from_ptr(ptr).to_string_lossy().into_owned() })
+        }
+    }
 }
 
 unsafe impl core::marker::Send for Source {}

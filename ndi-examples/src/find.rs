@@ -9,7 +9,18 @@ fn main() {
         panic!("No sources found");
     }
 
-    println!("Discovered Sources {:?}", sources);
+    println!("Discovered Sources:");
+    for src in &sources {
+        let name = src.get_name();
+        let url = src
+            .get_url_address()
+            .unwrap_or_else(|| "<unknown>".to_string());
+        let ip = src.get_ip_address();
+        match ip {
+            Some(ip) => println!("  {} - {} ({})", name, url, ip),
+            None => println!("  {} - {}", name, url),
+        }
+    }
 
     println!("Done");
 

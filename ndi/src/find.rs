@@ -76,13 +76,28 @@ impl FindBuilder {
         }
 
         if let Some(groups) = self.groups {
-            let cstr = CString::new(groups).unwrap();
-            settings.p_groups = cstr.into_raw();
+            let c_groups = CString::new(groups).map_err(|_| FindCreateError)?;
+            settings.p_groups = c_groups.as_ptr();
+
+            if let Some(extra_ips) = self.extra_ips {
+                let c_extra = CString::new(extra_ips).map_err(|_| FindCreateError)?;
+                settings.p_extra_ips = c_extra.as_ptr();
+                let res = Find::with_settings(settings);
+                drop((c_groups, c_extra));
+                return res;
+            } else {
+                let res = Find::with_settings(settings);
+                drop(c_groups);
+                return res;
+            }
         }
 
         if let Some(extra_ips) = self.extra_ips {
-            let cstr = CString::new(extra_ips).unwrap();
-            settings.p_extra_ips = cstr.into_raw();
+            let c_extra = CString::new(extra_ips).map_err(|_| FindCreateError)?;
+            settings.p_extra_ips = c_extra.as_ptr();
+            let res = Find::with_settings(settings);
+            drop(c_extra);
+            return res;
         }
 
         Find::with_settings(settings)

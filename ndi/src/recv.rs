@@ -174,9 +174,13 @@ impl RecvBuilder {
         }
         if let Some(ndi_recv_name) = self.ndi_recv_name {
             // String shouldn't contain a 0-byte
-            let cstr = CString::new(ndi_recv_name).unwrap();
+            let cstr = CString::new(ndi_recv_name).map_err(|_| RecvCreateError)?;
 
-            settings.p_ndi_recv_name = cstr.into_raw();
+            settings.p_ndi_recv_name = cstr.as_ptr();
+            // Ensure CString lives until after the create call
+            let res = Recv::with_settings(settings);
+            drop(cstr);
+            return res;
         }
 
         Recv::with_settings(settings)
@@ -325,28 +329,31 @@ impl Recv {
             )
         };
 
-        if !video.as_ptr().is_null() {
-            *video_data = Some(VideoData::from_binding_recv(
-                self.p_instance.clone(),
-                unsafe { video.assume_init() },
-            ));
+        let frame_type = FrameType::try_from(response).unwrap_or(FrameType::ErrorFrame);
+
+        match frame_type {
+            FrameType::Video => {
+                *video_data = Some(VideoData::from_binding_recv(
+                    self.p_instance.clone(),
+                    unsafe { video.assume_init() },
+                ));
+            }
+            FrameType::Audio => {
+                *audio_data = Some(AudioData::from_binding_recv(
+                    self.p_instance.clone(),
+                    unsafe { audio.assume_init() },
+                ));
+            }
+            FrameType::Metadata => {
+                *meta_data = Some(MetaData::from_binding_recv(
+                    self.p_instance.clone(),
+                    unsafe { metadata.assume_init() },
+                ));
+            }
+            _ => {}
         }
 
-        if !audio.as_ptr().is_null() {
-            *audio_data = Some(AudioData::from_binding_recv(
-                self.p_instance.clone(),
-                unsafe { audio.assume_init() },
-            ));
-        }
-
-        if !metadata.as_ptr().is_null() {
-            *meta_data = Some(MetaData::from_binding_recv(
-                self.p_instance.clone(),
-                unsafe { metadata.assume_init() },
-            ));
-        }
-
-        FrameType::try_from(response).unwrap()
+        frame_type
     }
 
     /// Receive video frame
@@ -366,14 +373,16 @@ impl Recv {
                 timeout_ms,
             );
 
-            if !video.as_ptr().is_null() {
+            let frame_type = FrameType::try_from(response).unwrap_or(FrameType::ErrorFrame);
+
+            if frame_type == FrameType::Video {
                 *video_data = Some(VideoData::from_binding_recv(
                     self.p_instance.clone(),
                     video.assume_init(),
                 ));
             }
 
-            FrameType::try_from(response).unwrap()
+            frame_type
         }
     }
 
@@ -393,13 +402,16 @@ impl Recv {
                 timeout_ms,
             );
 
-            if !audio.as_ptr().is_null() {
+            let frame_type = FrameType::try_from(response).unwrap_or(FrameType::ErrorFrame);
+
+            if frame_type == FrameType::Audio {
                 *audio_data = Some(AudioData::from_binding_recv(
                     self.p_instance.clone(),
                     audio.assume_init(),
                 ));
             }
-            FrameType::try_from(response).unwrap()
+
+            frame_type
         }
     }
 
@@ -419,13 +431,16 @@ impl Recv {
                 timeout_ms,
             );
 
-            if !metadata.as_ptr().is_null() {
+            let frame_type = FrameType::try_from(response).unwrap_or(FrameType::ErrorFrame);
+
+            if frame_type == FrameType::Metadata {
                 *meta_data = Some(MetaData::from_binding_recv(
                     Arc::clone(&self.p_instance),
                     metadata.assume_init(),
                 ));
             }
-            FrameType::try_from(response).unwrap()
+
+            frame_type
         }
     }
 

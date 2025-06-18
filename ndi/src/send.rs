@@ -88,12 +88,12 @@ impl SendBuilder {
         let cstr_ndi_group: CString;
 
         if let Some(ndi_name) = self.ndi_name {
-            cstr_ndi_name = CString::new(ndi_name).unwrap();
+            cstr_ndi_name = CString::new(ndi_name).map_err(|_| SendCreateError)?;
             settings.p_ndi_name = cstr_ndi_name.as_ptr();
         }
 
         if let Some(groups) = self.groups {
-            cstr_ndi_group = CString::new(groups).unwrap();
+            cstr_ndi_group = CString::new(groups).map_err(|_| SendCreateError)?;
             settings.p_groups = cstr_ndi_group.as_ptr();
         }
 
@@ -174,9 +174,7 @@ impl Send {
                 p_meta.assume_init(),
             ));
 
-            let res: FrameType = FrameType::try_from(frametype).unwrap();
-
-            res
+            FrameType::try_from(frametype).unwrap_or(FrameType::ErrorFrame)
         }
     }
 

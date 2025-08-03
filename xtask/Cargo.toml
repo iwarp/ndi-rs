@@ -7,5 +7,5 @@ edition = "2024"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bindgen = "0.71.1"
+bindgen = "0.72.0"
 xflags = "0.3.2"

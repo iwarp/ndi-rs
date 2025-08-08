@@ -278,6 +278,7 @@ impl Recv {
     pub fn connect(&mut self, source: &Source) {
         let instance: *const NDIlib_source_t = &source.p_instance;
         unsafe { NDIlib_recv_connect(**self.p_instance, instance) };
+        self.connected = self.get_no_connections() > 0;
     }
 
     /// Disconnect from all sources
@@ -285,6 +286,7 @@ impl Recv {
         unsafe {
             NDIlib_recv_connect(**self.p_instance, null());
         }
+        self.connected = false;
     }
 
     /// Receive video, audio and metadata frames.
@@ -301,23 +303,9 @@ impl Recv {
         meta_data: &mut Option<MetaData>,
         timeout_ms: u32,
     ) -> FrameType {
-        let mut video = if let Some(x) = video_data {
-            mem::MaybeUninit::new(x.p_instance)
-        } else {
-            mem::MaybeUninit::zeroed()
-        };
-
-        let mut audio = if let Some(x) = audio_data {
-            mem::MaybeUninit::new(x.p_instance)
-        } else {
-            mem::MaybeUninit::zeroed()
-        };
-
-        let mut metadata = if let Some(x) = meta_data {
-            mem::MaybeUninit::new(x.p_instance)
-        } else {
-            mem::MaybeUninit::zeroed()
-        };
+        let mut video: mem::MaybeUninit<NDIlib_video_frame_v2_t> = mem::MaybeUninit::zeroed();
+        let mut audio: mem::MaybeUninit<NDIlib_audio_frame_v3_t> = mem::MaybeUninit::zeroed();
+        let mut metadata: mem::MaybeUninit<NDIlib_metadata_frame_t> = mem::MaybeUninit::zeroed();
 
         let response = unsafe {
             NDIlib_recv_capture_v3(
@@ -359,11 +347,7 @@ impl Recv {
     /// Receive video frame
     pub fn capture_video(&self, video_data: &mut Option<VideoData>, timeout_ms: u32) -> FrameType {
         unsafe {
-            let mut video = if let Some(x) = video_data {
-                mem::MaybeUninit::new(x.p_instance)
-            } else {
-                mem::MaybeUninit::zeroed()
-            };
+            let mut video: mem::MaybeUninit<NDIlib_video_frame_v2_t> = mem::MaybeUninit::zeroed();
 
             let response = NDIlib_recv_capture_v3(
                 **self.p_instance,
@@ -389,11 +373,8 @@ impl Recv {
     /// Receive audio frame
     pub fn capture_audio(&self, audio_data: &mut Option<AudioData>, timeout_ms: u32) -> FrameType {
         unsafe {
-            let mut audio = if let Some(x) = audio_data {
-                mem::MaybeUninit::new(x.p_instance)
-            } else {
-                mem::MaybeUninit::zeroed()
-            };
+            let mut audio: mem::MaybeUninit<NDIlib_audio_frame_v3_t> = mem::MaybeUninit::zeroed();
+
             let response = NDIlib_recv_capture_v3(
                 **self.p_instance,
                 null_mut(),
@@ -418,11 +399,9 @@ impl Recv {
     /// Receive metadata frame
     pub fn capture_metadata(&self, meta_data: &mut Option<MetaData>, timeout_ms: u32) -> FrameType {
         unsafe {
-            let mut metadata = if let Some(x) = meta_data {
-                mem::MaybeUninit::new(x.p_instance)
-            } else {
-                mem::MaybeUninit::zeroed()
-            };
+            let mut metadata: mem::MaybeUninit<NDIlib_metadata_frame_t> =
+                mem::MaybeUninit::zeroed();
+
             let response = NDIlib_recv_capture_v3(
                 **self.p_instance,
                 null_mut(),

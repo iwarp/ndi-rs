@@ -221,9 +221,13 @@ impl Send {
     /// - a call to `send_video_async` with another frame to be sent
     /// - a call to `send_video` with p_video_data=NULL
     /// - Dropping a [`Send`] instance
-    pub fn send_video_async(&self, video_data: &VideoData) {
+    pub fn send_video_async(&self, video_data: Option<&VideoData>) {
         unsafe {
-            NDIlib_send_send_video_async_v2(**self.p_instance, &video_data.p_instance);
+            let ptr = match video_data {
+                Some(data) => &data.p_instance,
+                None => std::ptr::null(),
+            };
+            NDIlib_send_send_video_async_v2(**self.p_instance, ptr);
         }
     }
 

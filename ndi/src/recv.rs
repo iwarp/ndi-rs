@@ -276,6 +276,7 @@ impl Recv {
 
     /// Connect to a source
     pub fn connect(&mut self, source: &Source) {
+        let _lock = self.guard.lock().unwrap();
         let instance: *const NDIlib_source_t = &source.p_instance;
         unsafe { NDIlib_recv_connect(**self.p_instance, instance) };
         self.connected = self.get_no_connections() > 0;
@@ -283,6 +284,7 @@ impl Recv {
 
     /// Disconnect from all sources
     pub fn disconnect(&mut self) {
+        let _lock = self.guard.lock().unwrap();
         unsafe {
             NDIlib_recv_connect(**self.p_instance, null());
         }
